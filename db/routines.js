@@ -77,6 +77,7 @@ async function getAllPublicRoutines() {
  }
 }
 
+//adding comment to mark a change
 async function getPublicRoutinesByActivity({id}) {
   try {
     const routines = await getAllRoutines();

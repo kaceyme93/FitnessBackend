@@ -4,7 +4,7 @@ const apiRouter = express.Router();
 
 // GET /api/health
 apiRouter.get('/health', async (req, res, next) => {
-    res.status(200).send("Health is good!")
+    res.status(200).send("Health is goooood!")
 });
 
 // ROUTER: /api/users

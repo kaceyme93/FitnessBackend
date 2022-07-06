@@ -1,8 +1,8 @@
 require("dotenv").config()
-const PORT = process.env["PORT"] ?? 3002
+const PORT = process.env["PORT"] ?? 3003
 const express = require("express")
 const app = express()
-const { client }= require('./db/client')
+const { client }= require('./db')
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 const cors = require('cors')
@@ -24,8 +24,8 @@ app.get('/api', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  client.connect();
   console.log(`Listening on port ${PORT}`);
+  client.connect();
 })
 .on("error", () => {
   process.once("SIGUSR2", function () {

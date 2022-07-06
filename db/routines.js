@@ -78,10 +78,21 @@ async function getAllPublicRoutines() {
 }
 
 async function getPublicRoutinesByActivity({id}) {
-  const routines = await getAllRoutines()
-  const filteredRoutine = routines.filter(routine => routine.id === id);
-
-  return filteredRoutine
+  try {
+    const routines = await getAllRoutines();
+    const publicRoutineByActivity = routines.filter(routine =>{
+      if(routine.isPublic){
+        for(let i = 0; i < routine.activities.length; i++){
+          if(routine.activities[i].id === id){
+            return routine
+          }
+        }
+      }
+    })
+    return publicRoutineByActivity;
+  } catch (error) {
+    throw error;
+  }
   }
 
 

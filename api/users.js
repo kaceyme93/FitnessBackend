@@ -1,39 +1,54 @@
 /* eslint-disable no-unused-vars */
 const express = require('express');
-const router = express.Router();
-const {createUser, getUserByUsername} = require('../db/users')
+const usersRouter = express.Router();
+const { createUser, getUserByUsername } = require('../db/users')
 // POST /api/users/login Adding some stuff
-router.post('/login', async (req, res, next) => {
+usersRouter.post('/login', async (req, res, next) => {
     const { username, password } = req.body
 
 })
 // POST /api/users/register
-router.post('/register', async (req, res, next) => {
+// usersRouter.get('/', async (req, res, next) => {
+//     res.send({message: "Success"})
+// })
+usersRouter.post('/register', async (req, res, next) => {
+    // try{
+    //     console.log(req.body)
+    // }catch(error){
+    //     next(error)
+    // }
     const {username, password} = req.body
-    const _user = await getUserByUsername(username)
+    
     try {
-        if (_user) {
-            next({
-                name: "UserExistsError",
-                message: "Username already exists"
-            })
-        }
-        if (!username || !password) {
-            next({
-                name: "MissingCredentialsError",
-                message: "Please supply username and password"
-            })
-        }
+        const _user = await getUserByUsername(username)
+        // if (_user) {
+        //     next({
+        //         name: "UserExistsError",
+        //         message: "Username already exists"
+        //     })
+        // }
+        // if (!username || !password) {
+        //     next({
+        //         name: "MissingCredentialsError",
+        //         message: "Please supply username and password"
+        //     })
+        // }
 
-        if (password.length < 8) {
-            next({
-                name: "PasswordLengthError",
-                message: "Password must be at least 8 characters"
-            })
-        }
+        // if (password.length < 8) {
+        //     next({
+        //         name: "PasswordLengthError",
+        //         message: "Password must be at least 8 characters"
+        //     })
+        // }
 
         const user = await createUser(username, password)
-        res.send(user)
+        console.log("USER IS", user)
+        res.send(res.send(
+            {
+            user : user,
+            message: `Thank you for registering ${username}`
+            }
+        ))
     } catch({ name, message}) {
         next({ name, message})
     }
@@ -42,4 +57,4 @@ router.post('/register', async (req, res, next) => {
 
 // GET /api/users/:username/routines
 
-module.exports = router;
+module.exports = usersRouter;

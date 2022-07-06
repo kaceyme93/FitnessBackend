@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const {createUser, getUserByUsername} = require('../db/users')
-// POST /api/users/login
+// POST /api/users/login Adding some stuff
 router.post('/login', async (req, res, next) => {
     const { username, password } = req.body
 

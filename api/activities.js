@@ -1,9 +1,9 @@
 const express = require('express');
 const activitiesRouter = express.Router();
-const { getAllActivities } = require('../db/activities')
+const { getAllActivities, updateActivity, createActivity, getActivityByName, getActivityById } = require('../db/activities')
 const { getPublicRoutinesByActivity } = require('../db/routines')
 const { getUserById }= require('../db/users')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env
 
 // GET /api/activities/:activityId/routines
@@ -15,7 +15,8 @@ activitiesRouter.get('/:activityId/routines', async (req, res, next) => {
     //     routines
     // )
     try {
-        const id = req.params
+        
+        const id = req.params.activityId
         const routines = await getPublicRoutinesByActivity(id)
         console.log(routines)
         res.send(
@@ -35,6 +36,7 @@ activitiesRouter.get('/', async (req, res, next) => {
 })
 // POST /api/activities
 activitiesRouter.post('/', async (req, res, next)  => {
+    const { name, description } = req.body
     const prefix = 'Bearer ';
     const auth = req.header('Authorization');
     //Check for token
@@ -42,23 +44,66 @@ activitiesRouter.post('/', async (req, res, next)  => {
         const token = auth.slice(prefix.length)
 
         try{
-            //jwt verify to get user id
-            const { id } = jwt.verify(token, JWT_SECRET);
-
-            if (id) {
-                const user = await getUserById(id);
+            const existingActivity = await getActivityByName(name)
+            if (existingActivity){
                 res.send({
-                    id: user.id,
-                    username: user.username
+                    error: "ActivityExistsError",
+                    message: `An activity with name ${name} already exists`,
+                    name: "ActivityExists"
                 })
-                }
-
+            } else{
+            const newActivity = await createActivity({name, description})
+            // console.log("newActivity", newActivity)
+            res.send(
+                newActivity
+            )
+            }
         }catch(error){
             console.log(error)
             next(error)
         }
     }
 })
-// PATCH /api/activities/:activityId
-
+// // PATCH /api/activities/:activityId
+activitiesRouter.patch('/:activityId', async (req, res, next)  => {
+    const {name, description} = req.body
+    // const description = req.body.description
+    const activityId = (req.params.activityId)
+    const prefix = 'Bearer ';
+    const auth = req.header('Authorization');
+    //Check for token
+    if (auth.startsWith(prefix)) {
+        const token = auth.slice(prefix.length)
+        try{
+            const existingActivity = await getActivityById(activityId)
+            if (!existingActivity) {
+                res.send({
+                    error: "ActivityExistsError",
+                    message: `Activity ${activityId} not found`,
+                    name: "NoExistingActivity"
+                })
+             } else {
+                const { id } = jwt.verify(token, JWT_SECRET)
+                const user = await getUserById(id);
+                const updatedActivity = await updateActivity(user.id, name, description)
+                console.log("UpdatedAct", updatedActivity)
+                // const existingUpdatedActivityName = await getActivityByName(updatedActivity.name)
+                //     if (existingUpdatedActivityName){
+                //         res.send({
+                //             error: "ActivityExistsError",
+                //             message: "Activity with new name already exists",
+                //             name: "UpdatedActivityExists"
+                //         })
+                //     } else {
+                //     res.send(
+                //         updatedActivity
+                //     )}
+                }
+                
+        } catch(error){
+        console.log(error)
+        next(error)
+        }
+    }
+})
 module.exports = activitiesRouter;

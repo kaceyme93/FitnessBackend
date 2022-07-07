@@ -20,8 +20,8 @@ async function getActivityById(id) {
     const { rows: [routine] } = await client.query(`
     SELECT *
     FROM activities
-    WHERE id = ${id}
-    `)
+    WHERE id =($1)
+    `, [id])
 
     return routine
   } catch(error) {
@@ -35,8 +35,8 @@ async function getActivityByName(name) {
   try {
     const { rows: [routine]} = await client.query(`
     SELECT *
-    FROM activities;
-    WHERE name =$1
+    FROM activities
+    WHERE name =($1);
     `, [name])
 
     return routine

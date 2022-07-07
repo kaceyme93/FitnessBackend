@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 const express = require('express');
 const usersRouter = express.Router();
-const { createUser, getUserByUsername } = require('../db/users')
+const { createUser, getUserByUsername, getUserById } = require('../db/users')
+const {getAllRoutinesByUser, getPublicRoutinesByUser} = require('../db/routines')
 const jwt = require('jsonwebtoken')
 const { JWT_SECRET } = process.env
 const bcrypt = require('bcrypt')
@@ -34,19 +35,7 @@ usersRouter.post('/login', async (req, res, next) => {
                     token: token
                 })
             }
-        }
-        // if(user && user.password == password) {
-        //     const token = jwt.sign({
-        //         id: user.id,
-        //         username: username
-        //     }, JWT_SECRET)
-
-        //     res.send({
-        //         message: "Successful Login.",
-        //         token: token
-        //     })
-        // } 
-        else {
+        } else {
             res.send({
                 message: "Incorrect username and/or password.",
                 name: "CredentialsError"
@@ -56,10 +45,7 @@ usersRouter.post('/login', async (req, res, next) => {
         next({ name, message})
     }
 })
-// POST /api/users/register
-// usersRouter.get('/', async (req, res, next) => {
-//     res.send({message: "Success"})
-// })
+
 usersRouter.post('/register', async (req, res, next) => {
     const { username, password } = req.body
     
@@ -105,7 +91,42 @@ usersRouter.post('/register', async (req, res, next) => {
     }
 })
 // GET /api/users/me
+usersRouter.get('/me', async(req, res, next) => {
+    const prefix = 'Bearer ';
+    const auth = req.header('Authorization');
 
+  if (!auth) {
+    res.status(401).send({
+        error: "AuthorizationError",
+        message: "You must be logged in to perform this action",
+        name: "401 Error"
+    })
+  } else if (auth.startsWith(prefix)) {
+    const token = auth.slice(prefix.length);
+
+    try {
+      const { id } = jwt.verify(token, JWT_SECRET);
+
+      if (id) {
+        const user = await getUserById(id);
+        res.send({
+            id: user.id,
+            username: user.username
+        })
+      }
+    } catch ({ name, message }) {
+      res.send({
+        error: 401
+      });
+    }
+  } 
+})
 // GET /api/users/:username/routines
-
+usersRouter.get('/:username/routines', async (req, res, next) => {
+    const publicRoutines = await getPublicRoutinesByUser(req.params)
+    const routines = await getAllRoutinesByUser(req.params)
+    res.send(
+        publicRoutines
+    )
+})
 module.exports = usersRouter;

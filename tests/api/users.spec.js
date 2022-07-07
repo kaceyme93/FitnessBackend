@@ -133,7 +133,7 @@ describe("/api/users", () => {
     })
   })
 
-  fdescribe("POST /api/users/login", () => {
+  describe("POST /api/users/login", () => {
     it("Logs in the user. Requires username and password, and verifies that hashed login password matches the saved hashed password.", async () => {
       // Create some fake user data
       const userData = {

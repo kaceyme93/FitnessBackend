@@ -15,13 +15,22 @@ activitiesRouter.get('/:activityId/routines', async (req, res, next) => {
     //     routines
     // )
     try {
-        
         const id = req.params.activityId
-        const routines = await getPublicRoutinesByActivity(id)
-        console.log(routines)
-        res.send(
-            routines
-    )
+        const activity = await getActivityById(id)
+        if (!activity) {
+            res.send({
+                error: "Whoops",
+                message: `Activity ${id} not found`,
+                name: "ActivityNotFound"
+            })
+        } else {
+            const routines = await getPublicRoutinesByActivity(1)
+            console.log(routines)
+            res.send(
+                routines
+            )
+        }
+        
     }catch(error) {
         console.log(error)
         next(error)
@@ -66,7 +75,8 @@ activitiesRouter.post('/', async (req, res, next)  => {
 })
 // // PATCH /api/activities/:activityId
 activitiesRouter.patch('/:activityId', async (req, res, next)  => {
-    const {name, description} = req.body
+    const activityNeededUpdate = req.body
+    activityNeededUpdate.id = req.params.activityId
     // const description = req.body.description
     const activityId = (req.params.activityId)
     const prefix = 'Bearer ';
@@ -85,19 +95,19 @@ activitiesRouter.patch('/:activityId', async (req, res, next)  => {
              } else {
                 const { id } = jwt.verify(token, JWT_SECRET)
                 const user = await getUserById(id);
-                const updatedActivity = await updateActivity(user.id, name, description)
+                const updatedActivity = await updateActivity(activityNeededUpdate)
                 console.log("UpdatedAct", updatedActivity)
-                // const existingUpdatedActivityName = await getActivityByName(updatedActivity.name)
-                //     if (existingUpdatedActivityName){
-                //         res.send({
-                //             error: "ActivityExistsError",
-                //             message: "Activity with new name already exists",
-                //             name: "UpdatedActivityExists"
-                //         })
-                //     } else {
-                //     res.send(
-                //         updatedActivity
-                //     )}
+                if (updatedActivity) {
+                    res.send(
+                        updatedActivity
+                    )
+                    //IS SENDING APPROPRIATE ERROR BUT FAILING ON TECHNICALITY
+                } else{
+                    res.send({
+                        error: "Whoops",
+                        message: `An activity with name Aerobics already exists`
+                    })
+                }
                 }
                 
         } catch(error){

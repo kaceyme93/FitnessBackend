@@ -92,10 +92,16 @@ async function destroyRoutineActivity(id) {
 }
 
 async function canEditRoutineActivity(routineActivityId, userId) {
-  if (routineActivityId===userId){
-    return true
-  } else {
-    return false
+  try {
+    const routineActivityInQuestion = await getRoutineActivityById(routineActivityId)
+    const {creatorId} = await getRoutineById(routineActivityInQuestion.routineId)
+    if(creatorId === userId){
+      return true
+    }else{
+      return false
+    }
+  } catch (error) {
+    throw error;
   }
 }
 

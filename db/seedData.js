@@ -47,7 +47,7 @@ async function createTables() {
 
     CREATE TABLE routineactivities(
       id SERIAL PRIMARY KEY,
-      "routineId" INTEGER REFERENCES routines(id),
+      "routineId" INTEGER REFERENCES routines(id) ON DELETE CASCADE,
       "activityId" INTEGER REFERENCES activities(id),
       duration INTEGER,
       count INTEGER

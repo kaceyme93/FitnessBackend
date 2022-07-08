@@ -18,7 +18,6 @@ usersRouter.post('/login', async (req, res, next) => {
         })
     }
     try {
-        const hashPassword = await bcrypt.hashSync(password, SALT)
         const user = await getUserByUsername(username)
         //If there's a user and the password = password, call jwt.sign
         if (user) {
@@ -31,7 +30,7 @@ usersRouter.post('/login', async (req, res, next) => {
             
                 res.send({
                     user: user,
-                     message: "you're logged in!",
+                    message: "you're logged in!",
                     token: token
                 })
             }

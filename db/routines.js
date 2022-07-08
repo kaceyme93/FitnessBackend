@@ -80,7 +80,8 @@ async function getAllPublicRoutines() {
 //adding comment to mark a change
 async function getPublicRoutinesByActivity({id}) {
   try {
-    const routines = await getAllRoutines();
+    const routines = await getAllRoutines()
+    // const publicRoutinesWithActivity = []
     const publicRoutineByActivity = routines.filter(routine =>{
       if(routine.isPublic){
         for(let i = 0; i < routine.activities.length; i++){
@@ -90,6 +91,7 @@ async function getPublicRoutinesByActivity({id}) {
         }
       }
     })
+    console.log(publicRoutineByActivity)
     return publicRoutineByActivity;
   } catch (error) {
     throw error;
@@ -144,7 +146,6 @@ async function destroyRoutine(id) {
     WHERE id = ${id}
     RETURNING *
     `)
-    console.log(routine)
     return routine
   } catch(error){
     console.error("ERROR DELETING ROUTINE")
